@@ -1,15 +1,15 @@
 import unicodedata
+
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import get_model
 from django.utils.encoding import force_unicode
+from django.utils.text import slugify
 
 from . import settings as simple_geo_settings
-from django.utils.text import slugify
 
 
 def get_city_model():
     "Return the City model that is active in this project"
-    from django.db.models import get_model
-
     try:
         app_label, model_name = simple_geo_settings.SIMPLE_GEO_CITY_MODEL.split('.')
     except ValueError:
@@ -22,8 +22,6 @@ def get_city_model():
 
 def get_postalcode_model():
     "Return the PostalCode model that is active in this project"
-    from django.db.models import get_model
-
     try:
         app_label, model_name = simple_geo_settings.SIMPLE_GEO_POSTALCODE_MODEL.split('.')
     except ValueError:
