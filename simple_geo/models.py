@@ -61,7 +61,7 @@ def city_slugify(obj, counter=0):
 
 class BaseCity(models.Model):
     name = models.CharField(_(u'name'), max_length=190)
-    name_ascii = models.CharField(_(u'ASCII name'), max_length=190)
+    name_ascii = models.CharField(_(u'ASCII name'), max_length=190, db_index=True)
     slug = models.SlugField(_(u'slug'), max_length=200, unique=True, blank=True)
     province = models.CharField(_(u'state/province'), max_length=3)
     country = models.CharField(_(u'country'), max_length=3)
@@ -85,18 +85,17 @@ class BaseCity(models.Model):
         return super(BaseCity, self).save(*args, **kwargs)
 
 
-if simple_geo_settings.SIMPLE_GEO_CITY_MODEL == 'simple_geo.City':
-    class City(BaseCity):
-        pass
-
-
 class BasePostalCode(models.Model):
     city = models.ForeignKey(simple_geo_settings.SIMPLE_GEO_CITY_MODEL, verbose_name=_(u'city'), null=True, blank=True)
-    code = models.CharField(_(u'zip/postal code'), max_length=16)
+    code = models.CharField(_(u'zip/postal code'), max_length=16, db_index=True)
     point = PointField(_(u'point'), null=True, blank=True)
     updated = models.DateTimeField(_(u"updated"))
 
+    objects = GeoManager()
+
     class Meta:
+        verbose_name = _(u"Postal/Zip Code")
+        verbose_name_plural = _(u"Postal/Zip Codes")
         abstract = True
 
     def __unicode__(self):
@@ -107,13 +106,11 @@ class BasePostalCode(models.Model):
         return super(BaseCity, self).save(*args, **kwargs)
 
 
+if simple_geo_settings.SIMPLE_GEO_CITY_MODEL == 'simple_geo.City':
+    class City(BaseCity):
+        pass
+
+
 if simple_geo_settings.SIMPLE_GEO_POSTALCODE_MODEL == 'simple_geo.PostalCode':
     class PostalCode(BasePostalCode):
-        objects = GeoManager()
-
-        class Meta:
-            verbose_name = _(u"Postal/Zip Code")
-            verbose_name_plural = _(u"Postal/Zip Codes")
-
-        def __unicode__(self):
-            return u"{0}, {1}".format(self.code, self.city)
+        pass
