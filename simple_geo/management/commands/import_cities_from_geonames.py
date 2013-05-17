@@ -6,7 +6,8 @@ import datetime
 
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
-from simple_geo.models import get_city_model
+
+from ...utils import get_city_model
 
 
 region_code_map = {
@@ -24,6 +25,7 @@ region_code_map = {
     'CA.13': 'NT',
     'CA.14': 'NU'
 }
+
 
 class Command(BaseCommand):
     args = 'CA.txt'

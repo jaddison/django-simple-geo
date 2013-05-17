@@ -9,11 +9,13 @@ from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.http import urlencode
 import requests
-from simple_geo.models import get_postalcode_model, get_city_model
+
+from ...utils import get_postalcode_model, get_city_model
 
 
 class GeocodingError(Exception):
     pass
+
 
 class Command(BaseCommand):
     args = 'postal_code_data.csv'

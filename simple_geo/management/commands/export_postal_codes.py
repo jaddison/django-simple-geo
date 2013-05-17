@@ -3,7 +3,7 @@ import re
 import datetime
 
 from django.core.management.base import BaseCommand
-from simple_geo.models import get_postalcode_model
+from ...utils import get_postalcode_model
 
 """ This script has only been tested on a PostgreSQL 8.4/PostGIS 2.0 database configuration.
 

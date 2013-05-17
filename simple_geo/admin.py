@@ -1,7 +1,8 @@
 from django.contrib import admin
 
-from .models import get_city_model, get_postalcode_model
+from .utils import get_city_model, get_postalcode_model
 from .settings import SIMPLE_GEO_CITY_MODEL, SIMPLE_GEO_POSTALCODE_MODEL, SIMPLE_GEO_HIDE_ADMIN
+
 
 if not SIMPLE_GEO_HIDE_ADMIN:
     if SIMPLE_GEO_CITY_MODEL == 'simple_geo.City':
