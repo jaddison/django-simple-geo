@@ -1,10 +1,11 @@
 from django.contrib.gis.db.models import PointField, GeoManager
+from django.contrib.gis.geos import Point
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from . import settings as simple_geo_settings
-from .utils import to_ascii, city_slugify
+from .utils import to_ascii, city_slugify, geocode, GeocodingError
 
 
 class BaseCity(models.Model):
@@ -30,6 +31,19 @@ class BaseCity(models.Model):
         self.name_ascii = to_ascii(self.name)
         self.slug = city_slugify(self)
         self.updated = kwargs.pop('last_updated', timezone.now())
+
+        # don't have a coordinate point? let's find one from our geocoder!
+        if not self.point:
+            try:
+                data = geocode(country=self.country, city=self.name, region=self.province)
+            except GeocodingError, e:
+                # if we got in here, it's most likely because we're over the daily quota
+                data = None
+
+            if data and 'point' in data:
+                point = data.get('point', {})
+                self.point = Point(point.get('lng'), point.get('lat')) if 'lng' in point else None
+
         return super(BaseCity, self).save(*args, **kwargs)
 
 

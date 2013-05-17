@@ -1,11 +1,20 @@
+import json
+import random
+import time
 import unicodedata
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import get_model
 from django.utils.encoding import force_unicode
+from django.utils.http import urlencode
 from django.utils.text import slugify
+import requests
 
 from . import settings as simple_geo_settings
+
+
+class GeocodingError(Exception):
+    pass
 
 
 def get_city_model():
@@ -52,3 +61,69 @@ def city_slugify(obj, counter=0):
     return tmp
 
 
+def geocode(*args, **kwargs):
+    # check out https://developers.google.com/maps/documentation/geocoding/#ComponentFiltering for
+    # other component filtering elements
+    components = []
+    if 'code' in kwargs:
+        components.append(u"postal_code:{code}")
+    if 'country' in kwargs:
+        components.append(u"country:{country}")
+    if 'region' in kwargs:
+        components.append(u"administrative_area:{region}")
+    if 'city' in kwargs:
+        components.append(u"locality:{city}")
+
+    # don't want to hammer the API
+    wait = kwargs.get('wait', random.uniform(2,5))
+    time.sleep(wait)
+
+    # build the geocoding API URL.
+    url = u"http://maps.googleapis.com/maps/api/geocode/json?{0}".format(
+        urlencode({
+            'sensor': 'false',
+            'address': kwargs.get('address', u''),
+            'components': (u"|".join(components)).format(**kwargs)
+        })
+    )
+    response = requests.get(url)
+
+    address_data = {}
+    if response.status_code == requests.codes.ok:
+        result = json.loads(response.text)
+
+        status = result.get('status', '')
+        if status not in ('OK', 'ZERO_RESULTS'):
+            raise GeocodingError(u"Geocoding error: {0}".format(status))
+
+        result = result.get('results', [])
+        if not result:
+            return address_data
+
+        result = result[0] if len(result) else {}
+        coordinate = result.get('geometry', {}).get('location')
+        if coordinate:
+            address_data['point'] = coordinate
+        viewport = result.get('geometry', {}).get('viewport')
+        if viewport:
+            address_data['viewport'] = viewport
+        for item in result.get('address_components', []):
+            types = item.get('types', [])
+            type = None
+            for type in types:
+                if type == 'political':
+                    continue
+                break
+
+            if type in [
+                'postal_code',
+                'locality',
+                'sublocality',
+                'administrative_area_level_1',
+                'administrative_area_level_2',
+                'administrative_area_level_3',
+                'country'
+            ]:
+                address_data[type] = item.get('short_name', '')
+
+    return address_data

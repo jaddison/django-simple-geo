@@ -1,20 +1,11 @@
 import csv
-import json
 from optparse import make_option
 import os
-import random
-import time
 
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.http import urlencode
-import requests
 
-from ...utils import get_postalcode_model, get_city_model
-
-
-class GeocodingError(Exception):
-    pass
+from ...utils import get_postalcode_model, get_city_model, geocode, GeocodingError
 
 
 class Command(BaseCommand):
@@ -56,7 +47,7 @@ class Command(BaseCommand):
                     name=name,
                     province=region,
                     country=country,
-                    point=Point(point) if point else None
+                    point=point if point else None
                 )
                 self.created_cities += 1
                 print 'created',
@@ -64,60 +55,6 @@ class Command(BaseCommand):
             print city
 
         return city
-
-    def geocode(self, components):
-        # don't want to hammer the API
-        time.sleep(random.uniform(2,5))
-
-        # check out https://developers.google.com/maps/documentation/geocoding/#ComponentFiltering for
-        # other component filtering elements
-        response = requests.get(
-            "http://maps.googleapis.com/maps/api/geocode/json?{0}".format(
-                urlencode({
-                    'sensor': 'false',
-                    'components': components
-                }))
-        )
-
-        address_data = {}
-        if response.status_code == requests.codes.ok:
-            result = json.loads(response.text)
-
-            status = result.get('status', '')
-            if status not in ('OK', 'ZERO_RESULTS'):
-                raise GeocodingError(u"Geocoding error: {0}".format(status))
-
-            result = result.get('results', [])
-            if not result:
-                return address_data
-
-            result = result[0] if len(result) else {}
-            coordinate = result.get('geometry', {}).get('location')
-            if coordinate:
-                address_data['point'] = coordinate
-            # viewport = result.get('geometry', {}).get('viewport')
-            # if viewport:
-            #     address_data['viewport'] = viewport
-            for item in result.get('address_components', []):
-                types = item.get('types', [])
-                type = None
-                for type in types:
-                    if type == 'political':
-                        continue
-                    break
-
-                if type in [
-                    'postal_code',
-                    'locality',
-                    'sublocality',
-                    'administrative_area_level_1',
-                    'administrative_area_level_2',
-                    'administrative_area_level_3',
-                    'country'
-                ]:
-                    address_data[type] = item.get('short_name', '')
-
-        return address_data
 
     def handle(self, *args, **options):
         if not len(args):
@@ -231,7 +168,6 @@ class Command(BaseCommand):
                             try:
                                 postal_code_obj = qs_base.get(code=code)
                             except get_postalcode_model().MultipleObjectsReturned:
-                                print 'crap'
                                 raise
                             except get_postalcode_model().DoesNotExist:
                                 pass
@@ -273,21 +209,8 @@ class Command(BaseCommand):
                             )
                             print 'postal code created, no geocoding:', postal_code_obj
                         else:
-                            # we need to geocode the postal code, region, country, etc.
-                            if region:
-                                components = u"country:{0}|administrative_area:{1}|postal_code:{2}".format(
-                                    country,
-                                    region,
-                                    code
-                                )
-                            else:
-                                components = u"country:{0}|postal_code:{1}".format(
-                                    country,
-                                    code
-                                )
-
                             try:
-                                address_data = self.geocode(components)
+                                address_data = geocode(city=city, region=region, country=country, code=code)
                             except GeocodingError, e:
                                 # if we got in here, it's most likely because we're over the daily quota
                                 print unicode(e)
