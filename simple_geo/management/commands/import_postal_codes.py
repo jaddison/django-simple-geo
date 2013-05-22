@@ -47,7 +47,8 @@ class Command(BaseCommand):
                     name=name,
                     province=region,
                     country=country,
-                    point=point if point else None
+                    point=point if point else None,
+                    status=get_city_model().STATUS_IMPORTED
                 )
                 self.created_cities += 1
                 print 'created',

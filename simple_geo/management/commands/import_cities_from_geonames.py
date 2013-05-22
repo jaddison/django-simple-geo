@@ -72,7 +72,8 @@ class Command(BaseCommand):
                     name=name,
                     province=region,
                     country=country,
-                    point=point
+                    point=point,
+                    status=get_city_model().STATUS_IMPORTED
                 )
                 city.save(last_updated=last_updated)
                 self.created_cities += 1

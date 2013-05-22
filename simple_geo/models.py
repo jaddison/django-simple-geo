@@ -9,6 +9,19 @@ from .utils import to_ascii, city_slugify, geocode, GeocodingError
 
 
 class BaseCity(models.Model):
+    STATUS_IGNORED = 0
+    STATUS_NEW = 1
+    STATUS_IMPORTED = 2
+    STATUS_INACTIVE = 3
+    STATUS_ACTIVE = 4
+    STATUS_CHOICES = (
+        (STATUS_IGNORED, _(u"Ignored")),
+        (STATUS_NEW, _(u"New")),
+        (STATUS_IMPORTED, _(u"Imported")),
+        (STATUS_INACTIVE, _(u"Inactive")),
+        (STATUS_ACTIVE, _(u"Active")),
+    )
+
     name = models.CharField(_(u'name'), max_length=190)
     name_ascii = models.CharField(_(u'ASCII name'), max_length=190, db_index=True)
     slug = models.SlugField(_(u'slug'), max_length=200, unique=True, blank=True)
@@ -16,6 +29,7 @@ class BaseCity(models.Model):
     country = models.CharField(_(u'country'), max_length=3)
     point = PointField(_(u'point'), null=True, blank=True)
     updated = models.DateTimeField(_(u"updated"))
+    status = models.PositiveSmallIntegerField(_(u'status'), choices=STATUS_CHOICES, default=STATUS_NEW)
 
     objects = GeoManager()
 
