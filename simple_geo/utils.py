@@ -75,18 +75,18 @@ def geocode(*args, **kwargs):
         components.append(u"locality:{city}")
 
     # don't want to hammer the API
-    wait = kwargs.get('wait', random.uniform(2,5))
+    wait = kwargs.get('wait', random.uniform(1,3))
     time.sleep(wait)
 
-    # build the geocoding API URL.
-    url = u"http://maps.googleapis.com/maps/api/geocode/json?{0}".format(
-        urlencode({
-            'sensor': 'false',
-            'address': kwargs.get('address', u''),
-            'components': (u"|".join(components)).format(**kwargs)
-        })
-    )
-    response = requests.get(url)
+    # get rid of leading/trailing spaces in component values
+    component_params = dict([(k,v.strip()) for k,v in kwargs.iteritems()])
+    query_params = {
+        'sensor': 'false',
+        'address': kwargs.get('address', u'').strip(),
+        'components': (u"|".join(components)).format(**component_params)
+    }
+    url = u"http://maps.googleapis.com/maps/api/geocode/json"
+    response = requests.get(url, params=query_params)
 
     address_data = {}
     if response.status_code == requests.codes.ok:
