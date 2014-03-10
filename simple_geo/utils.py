@@ -6,7 +6,6 @@ import unicodedata
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import get_model
 from django.utils.encoding import force_unicode
-from django.utils.http import urlencode
 from django.utils.text import slugify
 import requests
 
@@ -48,12 +47,18 @@ def to_ascii(value):
 
 
 def city_slugify(obj, counter=0):
-    if counter:
-        tmp = u"{0} {1} {2}".format(obj.name, obj.province, counter)
-    else:
-        tmp = u"{0} {1}".format(obj.name, obj.province)
+    tmp = obj.format_slug if not counter else obj.format_slug_counter
 
-    tmp = slugify(tmp)
+    context = {
+        'name': obj.name,
+        'province': obj.province,
+        'country': obj.country,
+        'province_display': obj.province_display,
+        'country_display': obj.country_display,
+        'counter': counter
+    }
+    tmp = slugify(tmp.format(**context))
+
     if obj.slug != tmp:
         if obj.__class__.objects.all().filter(slug=tmp).exists():
             return city_slugify(obj, counter + 1)

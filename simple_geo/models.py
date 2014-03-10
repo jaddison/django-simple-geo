@@ -38,8 +38,19 @@ class BaseCity(models.Model):
         verbose_name_plural = _(u"Cities")
         abstract = True
 
+    format_slug = u"{name} {province} {country}"
+    format_slug_counter = u"{name} {province} {country} {counter}"
+
+    @property
+    def province_display(self):
+        return self.province
+
+    @property
+    def country_display(self):
+        return self.country
+
     def __unicode__(self):
-        return u"{0}, {1}, {2}".format(self.name, self.province, self.country)
+        return u"{0}, {1}, {2}".format(self.name, self.province_display, self.country)
 
     def save(self, *args, **kwargs):
         self.name_ascii = to_ascii(self.name)
