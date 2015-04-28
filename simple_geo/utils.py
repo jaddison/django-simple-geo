@@ -4,10 +4,15 @@ import time
 import unicodedata
 
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import get_model
 from django.utils.encoding import force_unicode
 from django.utils.text import slugify
 import requests
+
+try:
+    from django.apps import apps
+    get_model = apps.get_model
+except ImportError:
+    from django.db.models.loading import get_model
 
 from . import settings as simple_geo_settings
 

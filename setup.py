@@ -12,7 +12,7 @@ setup(
         'simple_geo.management',
         'simple_geo.management.commands',
     ],
-    version = '0.1.6',
+    version = '0.1.7',
     url='http://github.com/jaddison/django-simple-geo',
     keywords=['django', 'geo', 'gis', 'geodjango', 'geocoding', 'longitude', 'latitude', 'geospatial', 'cities', 'coordinates'],
     license='BSD',
