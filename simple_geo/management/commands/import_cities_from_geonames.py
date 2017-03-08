@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import sys
 import csv
 from optparse import make_option
@@ -60,12 +61,12 @@ class Command(BaseCommand):
                     province=region,
                     country=country
                 )
-                print 'retrieved',
+                print('retrieved',)
                 if point and last_updated and (city.updated < last_updated) and (not city.point or city.point != point):
                     city.point = point
                     city.save()
                     self.updated_cities += 1
-                    print 'and updated',
+                    print('and updated',)
 
             except get_city_model().DoesNotExist:
                 city = get_city_model()(
@@ -77,9 +78,9 @@ class Command(BaseCommand):
                 )
                 city.save(last_updated=last_updated)
                 self.created_cities += 1
-                print 'created',
+                print('created',)
 
-            print city
+            print(city)
 
         return city
 
@@ -125,7 +126,7 @@ class Command(BaseCommand):
                         continue
 
                     # do our best to clean up the city - it should be already be good
-                    city = u" ".join(row[1].decode('utf-8').strip().split(u' '))
+                    city = " ".join(row[1].decode('utf-8').strip().split(' '))
 
                     # let's get our coordinate/point, if available
                     latitude = row[4].strip()
@@ -133,9 +134,9 @@ class Command(BaseCommand):
                     city_point = Point(float(longitude), float(latitude)) if (latitude and longitude) else None
 
                     # this is when this record was last updated by geonames
-                    last_updated = datetime.datetime.strptime(row[18], u'%Y-%m-%d')
+                    last_updated = datetime.datetime.strptime(row[18], '%Y-%m-%d')
 
-                    # print row_type, country, region, city, latitude, longitude, city_point
+                    # print(row_type, country, region, city, latitude, longitude, city_point)
 
                     # get or create the city associate with this row
                     self.get_or_create_city(city, region, country, last_updated, city_point)
@@ -144,4 +145,4 @@ class Command(BaseCommand):
 
                 self.rows_processed += index + 1
 
-        print u"{0} new cities created, {1} cities updated. {2} rows processed.".format(self.created_cities, self.updated_cities, self.rows_processed)
+        print("{0} new cities created, {1} cities updated. {2} rows processed.".format(self.created_cities, self.updated_cities, self.rows_processed))

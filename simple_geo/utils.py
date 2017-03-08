@@ -1,10 +1,11 @@
+from __future__ import unicode_literals
 import json
 import random
 import time
 import unicodedata
 
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.encoding import force_unicode
+from django.utils import six
 from django.utils.text import slugify
 import requests
 
@@ -46,8 +47,6 @@ def get_postalcode_model():
 
 
 def to_ascii(value):
-    if isinstance(value, str):
-        value = force_unicode(value)
     return unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
 
 
@@ -76,26 +75,26 @@ def geocode(*args, **kwargs):
     # other component filtering elements
     components = []
     if 'code' in kwargs:
-        components.append(u"postal_code:{code}")
+        components.append("postal_code:{code}")
     if 'country' in kwargs:
-        components.append(u"country:{country}")
+        components.append("country:{country}")
     if 'region' in kwargs:
-        components.append(u"administrative_area:{region}")
+        components.append("administrative_area:{region}")
     if 'city' in kwargs:
-        components.append(u"locality:{city}")
+        components.append("locality:{city}")
 
     # don't want to hammer the API
     wait = kwargs.get('wait', random.uniform(1,3))
     time.sleep(wait)
 
     # get rid of leading/trailing spaces in component values
-    component_params = dict([(k,v.strip()) for k,v in kwargs.iteritems()])
+    component_params = dict([(k,v.strip()) for k,v in six.iteritems(kwargs)])
     query_params = {
         'sensor': 'false',
-        'address': kwargs.get('address', u'').strip(),
-        'components': (u"|".join(components)).format(**component_params)
+        'address': kwargs.get('address', '').strip(),
+        'components': ("|".join(components)).format(**component_params)
     }
-    url = u"http://maps.googleapis.com/maps/api/geocode/json"
+    url = "http://maps.googleapis.com/maps/api/geocode/json"
     response = requests.get(url, params=query_params)
 
     address_data = {}
@@ -104,7 +103,7 @@ def geocode(*args, **kwargs):
 
         status = result.get('status', '')
         if status not in ('OK', 'ZERO_RESULTS'):
-            raise GeocodingError(u"Geocoding error: {0}".format(status))
+            raise GeocodingError("Geocoding error: {0}".format(status))
 
         result = result.get('results', [])
         if not result:

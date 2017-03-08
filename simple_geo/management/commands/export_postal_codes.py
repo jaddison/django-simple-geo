@@ -1,8 +1,11 @@
+from __future__ import unicode_literals
 import csv
 import re
 import datetime
 
 from django.core.management.base import BaseCommand
+from django.utils import six
+
 from ...utils import get_postalcode_model
 
 """ This script has only been tested on a PostgreSQL 8.4/PostGIS 2.0 database configuration.
@@ -19,7 +22,7 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        filename = u"export-{0}.csv".format(datetime.datetime.now().strftime("%Y%m%d-%H%M"))
+        filename = "export-{0}.csv".format(datetime.datetime.now().strftime("%Y%m%d-%H%M"))
         with open(filename, 'wb') as csvfile:
             csvwriter = csv.writer(csvfile)
 
@@ -50,12 +53,12 @@ class Command(BaseCommand):
                 'city__point'
             ):
                 row = [
-                    unicode(item[0]).encode('utf-8'),
-                    unicode(item[1]).encode('utf-8'),
-                    unicode(item[2]).encode('utf-8'),
-                    unicode(item[3]).encode('utf-8'),
-                    unicode(item[4]).encode('utf-8'),
-                    unicode(item[5]).encode('utf-8'),
+                    six.text_type(item[0]).encode('utf-8'),
+                    six.text_type(item[1]).encode('utf-8'),
+                    six.text_type(item[2]).encode('utf-8'),
+                    six.text_type(item[3]).encode('utf-8'),
+                    six.text_type(item[4]).encode('utf-8'),
+                    six.text_type(item[5]).encode('utf-8'),
                 ]
                 # if we have point, extract their long/lat values as strings and then insert the proper values in
                 # our row; maintain precision of our PointField by not doing any type cast/conversion, just regex
@@ -64,7 +67,7 @@ class Command(BaseCommand):
                 # first our postal code point values
                 values = ['', '']
                 if item[6]:
-                    m = point_re.match(unicode(item[6]))
+                    m = point_re.match(six.text_type(item[6]))
                     if m:
                         values = m.groups()
 
@@ -73,11 +76,11 @@ class Command(BaseCommand):
                 # first our city point values
                 values = ['', '']
                 if item[7]:
-                    m = point_re.match(unicode(item[7]))
+                    m = point_re.match(six.text_type(item[7]))
                     if m:
                         values = m.groups()
 
                 row += values
 
-                print row
+                print(row)
                 csvwriter.writerow(row)

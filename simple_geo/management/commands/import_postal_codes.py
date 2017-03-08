@@ -1,9 +1,11 @@
+from __future__ import unicode_literals
 import csv
 from optparse import make_option
 import os
 
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import six
 
 from ...utils import get_postalcode_model, get_city_model, geocode, GeocodingError
 
@@ -41,7 +43,7 @@ class Command(BaseCommand):
                     province=region,
                     country=country
                 )
-                print 'retrieved',
+                print('retrieved',)
             except get_city_model().DoesNotExist:
                 city = get_city_model().objects.create(
                     name=name,
@@ -51,9 +53,9 @@ class Command(BaseCommand):
                     status=get_city_model().STATUS_IMPORTED
                 )
                 self.created_cities += 1
-                print 'created',
+                print('created',)
 
-            print city
+            print(city)
 
         return city
 
@@ -118,7 +120,7 @@ class Command(BaseCommand):
                                 row_city_longitude = colindex
 
                         if row_country is None or row_code is None:
-                            raise CommandError(u"The first row in the file must label both 'country' and 'code' columms. The 'region' column is optional, representing state/province.")
+                            raise CommandError("The first row in the file must label both 'country' and 'code' columms. The 'region' column is optional, representing state/province.")
 
                         # we've got our column definitions from the first row, so let's proceed to the next row (the first data row)
                         continue
@@ -134,9 +136,9 @@ class Command(BaseCommand):
                     city_point = None
 
                     if row_code is not None:
-                        code = u"".join(u"".join(row[row_code].strip().upper().split(u' ')).split(u'-'))
+                        code = "".join("".join(row[row_code].strip().upper().split(' ')).split('-'))
                     if row_city is not None:
-                        city = u" ".join(row[row_city].strip().split(u' '))
+                        city = " ".join(row[row_city].strip().split(' '))
                     if row_region is not None:
                         region = row[row_region].upper()
                     if row_country is not None:
@@ -179,7 +181,7 @@ class Command(BaseCommand):
                         city_obj.point = city_point
                         city_obj.save()
                         self.updated_cities += 1
-                        print 'city update:', city_obj
+                        print('city update:', city_obj)
 
                     if postal_code_obj:
                         # already have a postal code object, let's just verify what's in it is up to date
@@ -188,12 +190,12 @@ class Command(BaseCommand):
                         if city_obj and postal_code_obj.city_id != city_obj.id:
                             postal_code_obj.city = city_obj
                             changed_postal = True
-                            print 'postal code update, city:', postal_code_obj
+                            print('postal code update, city:', postal_code_obj)
 
                         if code_point and (not postal_code_obj.point or postal_code_obj.point != code_point):
                             postal_code_obj.point = code_point
                             changed_postal = True
-                            print 'postal code update, point:', postal_code_obj
+                            print('postal code update, point:', postal_code_obj)
 
                         if changed_postal:
                             postal_code_obj.save()
@@ -208,13 +210,13 @@ class Command(BaseCommand):
                                 code=code,
                                 point=code_point
                             )
-                            print 'postal code created, no geocoding:', postal_code_obj
+                            print('postal code created, no geocoding:', postal_code_obj)
                         else:
                             try:
                                 address_data = geocode(city=city, region=region, country=country, code=code)
-                            except GeocodingError, e:
+                            except GeocodingError as e:
                                 # if we got in here, it's most likely because we're over the daily quota
-                                print unicode(e)
+                                print(six.text_type(e))
                                 break
                             
                             if not address_data:
@@ -244,9 +246,9 @@ class Command(BaseCommand):
                                 code=address_data.get('postal_code', ''),
                                 point=Point(point.get('lng'), point.get('lat')) if 'lng' in point else None
                             )
-                            print 'postal code created, with geocoding:', postal_code_obj
+                            print('postal code created, with geocoding:', postal_code_obj)
                         self.created_postal_codes += 1
 
                 self.rows_processed += index + 1
 
-        print u"{0} new cities created, {1} new postal codes created. {2} rows processed.".format(self.created_cities, self.created_postal_codes, self.rows_processed)
+        print("{0} new cities created, {1} new postal codes created. {2} rows processed.".format(self.created_cities, self.created_postal_codes, self.rows_processed))
