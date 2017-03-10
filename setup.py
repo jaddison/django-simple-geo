@@ -4,6 +4,8 @@ try:
 except ImportError:
     from distutils.core import setup
 
+import simple_geo
+
 setup(
     name='django-simple-geo',
     description='Simple Django city, state, country geo-spatially aware model and utilities.',
@@ -11,11 +13,9 @@ setup(
     author='James Addison',
     author_email='addi00+github.com@gmail.com',
     packages=[
-        'simple_geo',
-        'simple_geo.management',
-        'simple_geo.management.commands',
+        'simple_geo'
     ],
-    version='0.2.0',
+    version=simple_geo.__version__,
     url='http://github.com/jaddison/django-simple-geo',
     keywords=['django', 'geo', 'gis', 'geodjango', 'geocoding', 'longitude', 'latitude', 'geospatial', 'cities', 'coordinates'],
     license='BSD',
