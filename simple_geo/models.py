@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from django.contrib.gis.db.models import PointField, GeoManager
+from django.contrib.gis.db.models import PointField
 from django.contrib.gis.geos import Point
 from django.db import models
 from django.utils import timezone
@@ -32,8 +32,6 @@ class BaseCity(models.Model):
     point = PointField(_('point'), null=True, blank=True)
     updated = models.DateTimeField(_("updated"))
     status = models.PositiveSmallIntegerField(_('status'), choices=STATUS_CHOICES, default=STATUS_NEW)
-
-    objects = GeoManager()
 
     class Meta:
         verbose_name = _("City")
@@ -79,8 +77,6 @@ class BasePostalCode(models.Model):
     code = models.CharField(_('zip/postal code'), max_length=16, db_index=True)
     point = PointField(_('point'), null=True, blank=True)
     updated = models.DateTimeField(_("updated"))
-
-    objects = GeoManager()
 
     class Meta:
         verbose_name = _("Postal/Zip Code")
