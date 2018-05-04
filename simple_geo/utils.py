@@ -93,7 +93,7 @@ def geocode(*args, **kwargs):
         'sensor': 'false',
         'address': kwargs.get('address', '').strip(),
         'components': ("|".join(components)).format(**component_params),
-        'key': SIMPLE_GEO_GOOGLE_MAPS_API_KEY
+        'key': simple_geo_settings.SIMPLE_GEO_GOOGLE_MAPS_API_KEY
     }
     url = "https://maps.googleapis.com/maps/api/geocode/json"
     response = requests.get(url, params=query_params)

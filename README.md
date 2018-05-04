@@ -2,6 +2,8 @@ This project is a work in progress.
 
 ##### Changes
 
+* 2018-05-04, v0.4.2: Google Geocode API fix.
+
 * 2018-05-03, v0.4.1: Google Geocode API update.
 
 * 2017-11-27, v0.4.0: Removing deprecated usage of GeoManager.
