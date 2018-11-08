@@ -2,6 +2,8 @@ This project is a work in progress.
 
 ##### Changes
 
+* 2018-11-07, v0.4.3: Django 2.x deprecation fixes.
+
 * 2018-05-04, v0.4.2: Google Geocode API fix.
 
 * 2018-05-03, v0.4.1: Google Geocode API update.

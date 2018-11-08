@@ -73,7 +73,7 @@ class BaseCity(models.Model):
 
 
 class BasePostalCode(models.Model):
-    city = models.ForeignKey(simple_geo_settings.SIMPLE_GEO_CITY_MODEL, verbose_name=_('city'), null=True, blank=True)
+    city = models.ForeignKey(simple_geo_settings.SIMPLE_GEO_CITY_MODEL, verbose_name=_('city'), null=True, blank=True, on_delete=models.CASCADE)
     code = models.CharField(_('zip/postal code'), max_length=16, db_index=True)
     point = PointField(_('point'), null=True, blank=True)
     updated = models.DateTimeField(_("updated"))
