@@ -5,7 +5,7 @@ import time
 import unicodedata
 
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import six
+from six import iteritems
 from django.utils.text import slugify
 import requests
 
@@ -88,7 +88,7 @@ def geocode(*args, **kwargs):
     time.sleep(wait)
 
     # get rid of leading/trailing spaces in component values
-    component_params = dict([(k,v.strip()) for k,v in six.iteritems(kwargs)])
+    component_params = dict([(k,v.strip()) for k,v in iteritems(kwargs)])
     query_params = {
         'sensor': 'false',
         'address': kwargs.get('address', '').strip(),

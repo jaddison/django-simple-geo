@@ -3,7 +3,7 @@ from django.contrib.gis.db.models import PointField
 from django.contrib.gis.geos import Point
 from django.db import models
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
+from six import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from . import settings as simple_geo_settings
