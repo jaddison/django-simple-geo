@@ -1,7 +1,7 @@
 This project is a work in progress.
 
 ##### Changes
-* 2023-06-02, v0.5.0: Added support for Django 3.2
+* 2023-06-02, v0.4.4: Added support for Django 3.2
 
 * 2018-11-07, v0.4.3: Django 2.x deprecation fixes.
 
